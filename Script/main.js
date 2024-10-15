@@ -9,7 +9,7 @@ const modalTitle = document.querySelector('#modal-title');
 const modalContents = document.querySelector('#modal-contents');
 const modalVoteAverage = document.querySelector('#modal-vote-average');
 
-const url = `https://api.themoviedb.org/3/movie/popular?language=ko&page=1`;
+let url = `https://api.themoviedb.org/3/movie/popular?language=ko&page=1`;
 
 const options = {
     method: 'GET',

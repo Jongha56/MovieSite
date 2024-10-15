@@ -65,5 +65,87 @@ body {
     margin: 10px auto 0px auto;
 }
 
+/* 모달 */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+
+    /* 숨기기 */
+    opacity: 0;
+    z-index: -1;
+
+    display: flex;
+    justify-content: center;
+}
+
+.show {
+    opacity: 1;
+    z-index: 1000;
+    transition: all 0.5s;
+}
+
+.modal {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.popup {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: black;
+    border: 1px solid white;
+    color: white;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.3);
+
+    /* 모달 사이즈 */
+    width: 600px;
+    height: 600px;
+
+    /* 초기에 약간 아래에 배치 */
+    transform: translate(-50%, -40%);
+
+    border-radius: 10px;
+}
+
+.show .popup {
+    transform: translate(-50%, -50%);
+    transition: all 0.5s;
+}
+
+#popupname,
+#popupcontent {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.popup > button {
+    height: 5%;
+    color: white;
+    background-color: transparent;
+    align-self: flex-end;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.popup > img {
+    width: 40%;
+    height: 60%;
+}
+
+
+
 
 

@@ -1,3 +1,16 @@
+const searchInput = document.querySelector('#search-input');
+const bookmarkBtn = document.querySelector('#bookmark-btn');
+const movieList = document.querySelector('#movie-list');
+const movieDetail = document.querySelector('#movie-detail');
+
+const modalClose = document.querySelector('#modal-close');
+const modalImg = document.querySelector('#modal-img');
+const modalTitle = document.querySelector('#modal-title');
+const modalContents = document.querySelector('#modal-contents');
+const modalVoteAverage = document.querySelector('#modal-vote-average');
+
+const url = `https://api.themoviedb.org/3/movie/popular?language=ko&page=1`;
+
 const options = {
     method: 'GET',
     headers: {
@@ -6,12 +19,10 @@ const options = {
     }
 };
 
-fetch('https://api.themoviedb.org/3/movie/popular?language=ko&page=1', options)
+fetch(url, options)
     .then(response => response.json())
     .then(response => {
-        console.log(response)
         const rows = response['results'];
-        const cardList = document.querySelector('#movie-list');
         const [width, height] = [320, 450];
         
         rows.forEach(e => {
@@ -28,33 +39,25 @@ fetch('https://api.themoviedb.org/3/movie/popular?language=ko&page=1', options)
                     <p>평점: ${voteAverage}</p>
                 </div>
             `
-            cardList.innerHTML += tempHtml;
+            movieList.innerHTML += tempHtml;
         });
-
-        // console.log(rows);
     })
     .catch(err => console.error(err));
-
-const searchInput = document.querySelector('#search-input');
-const searchBtn = document.querySelector('#search-btn');
-const bookmarkBtn = document.querySelector('#bookmark-btn');
 
 searchInput.addEventListener("input", function () {
     const inputValue = searchInput.value.toLowerCase();
     const searchStr = inputValue.replace(' ', '+');
-    console.log(searchStr);
 
-    const url = searchStr === "" ? `https://api.themoviedb.org/3/movie/popular?language=ko&page=1` : `https://api.themoviedb.org/3/search/movie?query=${searchStr}&language=ko`;
+    url = searchStr === "" ? `https://api.themoviedb.org/3/movie/popular?language=ko&page=1` : `https://api.themoviedb.org/3/search/movie?query=${searchStr}&language=ko`;
 
     fetch(url, options)
     .then(response => response.json())
     .then(response => {
         const rows = response['results'];
-        const cardList = document.querySelector('#movie-list');
         const [width, height] = [320, 450];
         
-        cardList.innerHTML = "";
-        cardList.style.color = 'black';
+        movieList.innerHTML = "";
+        movieList.style.color = 'black';
 
         rows.forEach(e => {
             const title = e['title'];
@@ -70,12 +73,12 @@ searchInput.addEventListener("input", function () {
                     <p>평점: ${voteAverage}</p>
                 </div>
             `
-            cardList.innerHTML += tempHtml;
+            movieList.innerHTML += tempHtml;
         });
 
         if (rows.length < 1) {
-            cardList.style.color = 'white';
-            cardList.innerHTML += `
+            movieList.style.color = 'white';
+            movieList.innerHTML += `
             <div class="empty-movie">
                 <p>관련 영화가 존재하지 않습니다.</p>
                 <p>다시 검색해 주세요.</p> 
@@ -86,8 +89,38 @@ searchInput.addEventListener("input", function () {
     .catch(err => console.error(err));
 });
 
+movieList.addEventListener("click", function(e) {
+    const movieCard = document.querySelectorAll('.movie-card');
+    movieCard.forEach(card => {
+        if (e.target.parentNode.id === card.id) {
+            document.querySelector(".background").className = "background show";
+            fetch(url, options)
+                .then(response => response.json())
+                .then(response => {
+                    const rows = response['results'];
+                    const [width, height] = [320, 450];
 
+                    rows.forEach(movieinfo => {
+                        if (movieinfo.id === Number(card.id)) {
+                            modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`;
+                            // modalImg.width = width;
+                            // modalImg.height = height;
+                            modalTitle.innerHTML = movieinfo['title'];
+                            modalContents.innerHTML = movieinfo['overview'];
+                            modalVoteAverage.innerHTML = "평점 :" + movieinfo['vote_average'];
+                            console.log(movieinfo);
+                        }
+                    })
+                    return;
+                })
+                .catch(err => console.error(err));
+        }
+    })
+})
 
+modalClose.addEventListener("click", function() {
+    document.querySelector(".background").className = "background";
+})
 
 
 

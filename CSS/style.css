@@ -129,21 +129,25 @@ body.overflow-hidden {
     transition: all 0.5s;
 }
 
-#popupname,
-#popupcontent {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
+.modal-container > h2, 
+.modal-container > div {
+    margin: 10px 10px;
 }
 
 .popup > button {
-    height: 5%;
+    position: fixed;
+    font-size: large;
+    top: 10px;
+    right: 10px;
+
     color: white;
     background-color: transparent;
-    align-self: flex-end;
     border: none;
     cursor: pointer;
-    margin-right: 10px;
+}
+
+.popup > button:hover {
+    color: red;
 }
 
 

@@ -8,6 +8,9 @@ const modalImg = document.querySelector('#modal-img');
 const modalTitle = document.querySelector('#modal-title');
 const modalContents = document.querySelector('#modal-contents');
 const modalVoteAverage = document.querySelector('#modal-vote-average');
+const addBookmark = document.querySelector('#add-bookmark');
+
+let tempMovieData = {}; // 모달창을 띄운 영화에 대한 데이터를 임시로 넣을 변수
 
 let url = `https://api.themoviedb.org/3/movie/popular?language=ko&page=1`;
 
@@ -33,7 +36,7 @@ fetch(url, options)
             const id = e['id'];
 
             const tempHtml = `
-                <div class="movie-card" id="${id}">
+                <div class="movie-card" id="${id}" data-ismarked="No">
                     <img src="https://image.tmdb.org/t/p/w500${posterPath}" width="${width}" height="${height}">
                     <h3>${title}</h3>
                     <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
@@ -67,7 +70,7 @@ searchInput.addEventListener("input", function () {
             const id = e['id'];
 
             const tempHtml = `
-                <div class="movie-card" id="${id}">
+                <div class="movie-card" id="${id}" data-ismarked="No">
                     <img src="https://image.tmdb.org/t/p/w500${posterPath}" width="${width}" height="${height}">
                     <h3>${title}</h3>
                     <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
@@ -91,6 +94,7 @@ searchInput.addEventListener("input", function () {
 
 movieList.addEventListener("click", function(e) {
     const movieCard = document.querySelectorAll('.movie-card');
+    console.log(movieCard);
     movieCard.forEach(card => {
         if (e.target.parentNode.id === card.id) {
             document.querySelector(".background").className = "background show";
@@ -105,23 +109,64 @@ movieList.addEventListener("click", function(e) {
                     const movieinfo = response;
                     const [width, height] = [320, 450];
 
+                    const title = movieinfo['title'];
+                    const overview = movieinfo['overview'];
+                    const voteAverage = `⭐ ${movieinfo['vote_average'].toFixed(1)} / 10`;
+
+                    if (e.target.parentNode.dataset.ismarked === "No") {
+                        tempMovieData = {
+                            'id': card.id,
+                            'title': title,
+                            'overview': overview,
+                            'poster_path': `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`,
+                            'vote_average': voteAverage
+                        }
+                    }
+                    else {
+                        tempMovieData = {};
+                    }
+
                     modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
                     // modalImg.width = width;
                     // modalImg.height = height;
-                    modalTitle.innerHTML = movieinfo['title'];
-                    modalContents.innerHTML = movieinfo['overview'];
-                    modalVoteAverage.innerHTML = `⭐ ${movieinfo['vote_average'].toFixed(1)} / 10`;
+                    modalTitle.innerHTML = title;
+                    modalContents.innerHTML = overview;
+                    modalVoteAverage.innerHTML = voteAverage;
                 })
                 .catch(err => console.error(err));
         }
     })
-})
+});
 
 modalClose.addEventListener("click", function() {
     document.querySelector(".background").className = "background";
     document.body.classList.remove("overflow-hidden"); // 모달창 닫았을 때 뒤의 화면 스크롤바 속성 추가
 })
 
+bookmarkBtn.addEventListener("click", function() {
 
+});
+
+addBookmark.addEventListener("click", function(e) {
+    // let tmpDatas = {...tempMovieData};
+    // console.log(`tempMovieData: ${tempMovieData}, tmpDatas: ${tmpDatas}`);
+    const tmpCard = document.getElementById(`${tempMovieData["id"]}`);
+    if (tmpCard.dataset.ismarked === "No") {
+        tmpCard.dataset.ismarked = "Yes";
+        // localStorage.SetItem(`${tmpDatas["id"]}`, tempMovieData);
+    }
+    else {
+        tmpCard.dataset.ismarked = "No";
+        
+    }
+})
+
+const SaveMovieData = (data) => {
+    let saveData = {};
+
+    console.log(...data);
+
+    return saveData;
+}
 
 

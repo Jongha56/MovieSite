@@ -124,6 +124,10 @@ body.overflow-hidden {
     overflow-y: auto;
 }
 
+.popup::-webkit-scrollbar {
+    width: 0px;
+}
+
 .show .popup {
     transform: translate(-50%, -50%);
     transition: all 0.5s;

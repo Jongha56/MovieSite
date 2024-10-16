@@ -131,7 +131,7 @@ body.overflow-hidden {
 
 .modal-container > h2, 
 .modal-container > div {
-    margin: 10px 10px;
+    margin: 15px;
 }
 
 .popup > button {
@@ -150,7 +150,27 @@ body.overflow-hidden {
     color: red;
 }
 
+#add-bookmark {
+    border: none;
+    border-radius: 10px;
+    width: 95%;
+    height: 30px;
+    margin: 0px 15px 15px;
 
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    color: black;
+}
+
+#add-bookmark:hover {
+    background-color: blue;
+    color: white;
+}
+
+#add-bookmark:active {
+    background-color: rgb(0, 0, 185);
+}
 
 
 

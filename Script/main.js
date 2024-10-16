@@ -36,7 +36,7 @@ fetch(url, options)
                 <div class="movie-card" id="${id}">
                     <img src="https://image.tmdb.org/t/p/w500${posterPath}" width="${width}" height="${height}">
                     <h3>${title}</h3>
-                    <p>평점: ${voteAverage}</p>
+                    <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
                 </div>
             `
             movieList.innerHTML += tempHtml;
@@ -70,7 +70,7 @@ searchInput.addEventListener("input", function () {
                 <div class="movie-card" id="${id}">
                     <img src="https://image.tmdb.org/t/p/w500${posterPath}" width="${width}" height="${height}">
                     <h3>${title}</h3>
-                    <p>평점: ${voteAverage}</p>
+                    <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
                 </div>
             `
             movieList.innerHTML += tempHtml;
@@ -94,24 +94,23 @@ movieList.addEventListener("click", function(e) {
     movieCard.forEach(card => {
         if (e.target.parentNode.id === card.id) {
             document.querySelector(".background").className = "background show";
+            document.body.style.setProperty('--scrollbar-width', `${window.innerWidth - document.documentElement.offsetWidth}px`); // 스크롤바 너비 만큼 화면 고정
+            document.body.classList.add("overflow-hidden"); // 모달창 띄웠을 때 뒤의 화면 스크롤 방지
 
             url = `https://api.themoviedb.org/3/movie/${card.id}?language=ko`;
-            console.log(card.id);
 
             fetch(url, options)
                 .then(response => response.json())
                 .then(response => {
                     const movieinfo = response;
-                    console.log(response);
                     const [width, height] = [320, 450];
 
-                    modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`;
+                    modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
                     // modalImg.width = width;
                     // modalImg.height = height;
                     modalTitle.innerHTML = movieinfo['title'];
                     modalContents.innerHTML = movieinfo['overview'];
-                    modalVoteAverage.innerHTML = "평점 :" + movieinfo['vote_average'];
-                    console.log(movieinfo);
+                    modalVoteAverage.innerHTML = `⭐ ${movieinfo['vote_average'].toFixed(1)} / 10`;
                 })
                 .catch(err => console.error(err));
         }
@@ -120,6 +119,7 @@ movieList.addEventListener("click", function(e) {
 
 modalClose.addEventListener("click", function() {
     document.querySelector(".background").className = "background";
+    document.body.classList.remove("overflow-hidden"); // 모달창 닫았을 때 뒤의 화면 스크롤바 속성 추가
 })
 
 

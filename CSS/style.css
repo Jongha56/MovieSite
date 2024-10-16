@@ -2,6 +2,11 @@ body {
     background-color: rgb(41, 41, 41);
 }
 
+body.overflow-hidden {
+    overflow: hidden;
+    padding-right: var(--scrollbar-width);
+}
+
 .search {
     color: white;
     display: flex;
@@ -109,13 +114,14 @@ body {
     box-shadow: 0 2px 7px rgba(0, 0, 0, 0.3);
 
     /* 모달 사이즈 */
-    width: 600px;
+    width: 700px;
     height: 600px;
 
     /* 초기에 약간 아래에 배치 */
     transform: translate(-50%, -40%);
 
     border-radius: 10px;
+    overflow-y: auto;
 }
 
 .show .popup {
@@ -140,10 +146,7 @@ body {
     margin-right: 10px;
 }
 
-.popup > img {
-    width: 40%;
-    height: 60%;
-}
+
 
 
 

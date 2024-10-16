@@ -94,24 +94,24 @@ movieList.addEventListener("click", function(e) {
     movieCard.forEach(card => {
         if (e.target.parentNode.id === card.id) {
             document.querySelector(".background").className = "background show";
+
+            url = `https://api.themoviedb.org/3/movie/${card.id}?language=ko`;
+            console.log(card.id);
+
             fetch(url, options)
                 .then(response => response.json())
                 .then(response => {
-                    const rows = response['results'];
+                    const movieinfo = response;
+                    console.log(response);
                     const [width, height] = [320, 450];
 
-                    rows.forEach(movieinfo => {
-                        if (movieinfo.id === Number(card.id)) {
-                            modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`;
-                            // modalImg.width = width;
-                            // modalImg.height = height;
-                            modalTitle.innerHTML = movieinfo['title'];
-                            modalContents.innerHTML = movieinfo['overview'];
-                            modalVoteAverage.innerHTML = "평점 :" + movieinfo['vote_average'];
-                            console.log(movieinfo);
-                        }
-                    })
-                    return;
+                    modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`;
+                    // modalImg.width = width;
+                    // modalImg.height = height;
+                    modalTitle.innerHTML = movieinfo['title'];
+                    modalContents.innerHTML = movieinfo['overview'];
+                    modalVoteAverage.innerHTML = "평점 :" + movieinfo['vote_average'];
+                    console.log(movieinfo);
                 })
                 .catch(err => console.error(err));
         }

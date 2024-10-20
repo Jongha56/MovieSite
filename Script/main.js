@@ -148,16 +148,18 @@ bookmarkBtn.addEventListener("click", function() {
 });
 
 addBookmark.addEventListener("click", function(e) {
-    // let tmpDatas = {...tempMovieData};
+    // let {id, ...rest} = tempMovieData;
     // console.log(`tempMovieData: ${tempMovieData}, tmpDatas: ${tmpDatas}`);
     const tmpCard = document.getElementById(`${tempMovieData["id"]}`);
     if (tmpCard.dataset.ismarked === "No") {
         tmpCard.dataset.ismarked = "Yes";
-        // localStorage.SetItem(`${tmpDatas["id"]}`, tempMovieData);
+        let bookmarkString = JSON.stringify(tempMovieData);
+        localStorage.setItem("bookmarks", bookmarkString);
+        // alert("")
     }
     else {
         tmpCard.dataset.ismarked = "No";
-        
+        localStorage.removeItem("bookmarks");
     }
 })
 

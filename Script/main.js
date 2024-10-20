@@ -94,7 +94,6 @@ searchInput.addEventListener("input", function () {
 
 movieList.addEventListener("click", function(e) {
     const movieCard = document.querySelectorAll('.movie-card');
-    console.log(movieCard);
     movieCard.forEach(card => {
         if (e.target.parentNode.id === card.id) {
             document.querySelector(".background").className = "background show";
@@ -147,28 +146,41 @@ bookmarkBtn.addEventListener("click", function() {
 
 });
 
-addBookmark.addEventListener("click", function(e) {
-    // let {id, ...rest} = tempMovieData;
-    // console.log(`tempMovieData: ${tempMovieData}, tmpDatas: ${tmpDatas}`);
+addBookmark.addEventListener("click", function() {
+    let savedMovieDatas = new Map();
+    const {id, ...rest} = tempMovieData;
+    let JsonData = JSON.parse(localStorage.getItem('bookmarks'));
+    
+    if (JsonData) {
+        let keyName = "";
+        JsonData.forEach((data, index) => {
+            if (index % 2 === 0) {
+                keyName = data;
+            }
+            else {
+                savedMovieDatas.set(keyName, data);
+            }
+        })
+    }
+
+    // TODO: ismarked 를 사용하는 방법보다
+    //       savedMovieDatas 에 id 가 있는지 확인 후 분기를 나누어야 할 것 같다.
     const tmpCard = document.getElementById(`${tempMovieData["id"]}`);
     if (tmpCard.dataset.ismarked === "No") {
         tmpCard.dataset.ismarked = "Yes";
-        let bookmarkString = JSON.stringify(tempMovieData);
-        localStorage.setItem("bookmarks", bookmarkString);
-        // alert("")
+        savedMovieDatas.set(id, rest);
+        addBookmark.innerHTML = "북마크 해제";
+        alert("북마크가 추가되었습니다.");
     }
     else {
         tmpCard.dataset.ismarked = "No";
-        localStorage.removeItem("bookmarks");
+        savedMovieDatas.delete(id);
+        addBookmark.innerHTML = "북마크 추가";
+        alert("북마크가 해제되었습니다.")
     }
+    
+    let bookmarkString = JSON.stringify(...savedMovieDatas);
+    localStorage.setItem("bookmarks", bookmarkString);
 })
-
-const SaveMovieData = (data) => {
-    let saveData = {};
-
-    console.log(...data);
-
-    return saveData;
-}
 
 

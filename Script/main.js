@@ -38,30 +38,32 @@ function MakePosters(rows) {
     movieList.innerHTML = "";
     movieList.style.color = 'black';
 
-    rows.forEach(e => {
-        const title = e['title'];
-        const posterPath = e['poster_path'];
-        const voteAverage = e['vote_average'];
-        const id = e['id'];
+    if (rows) {
+        rows.forEach(e => {
+            const title = e['title'];
+            const posterPath = e['poster_path'];
+            const voteAverage = e['vote_average'];
+            const id = e['id'];
+    
+            const tempHtml = `
+                <div class="movie-card" id="${id}">
+                    <img src="https://image.tmdb.org/t/p/w500${posterPath}">
+                    <h3>${title}</h3>
+                    <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
+                </div>
+            `
+            movieList.innerHTML += tempHtml;
+        });
 
-        const tempHtml = `
-            <div class="movie-card" id="${id}">
-                <img src="https://image.tmdb.org/t/p/w500${posterPath}">
-                <h3>${title}</h3>
-                <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
+        if (rows.length < 1) {
+            movieList.style.color = 'white';
+            movieList.innerHTML += `
+            <div class="empty-movie">
+                <p>관련 영화가 존재하지 않습니다.</p>
+                <p>다시 검색해 주세요.</p> 
             </div>
-        `
-        movieList.innerHTML += tempHtml;
-    });
-
-    if (rows.length < 1) {
-        movieList.style.color = 'white';
-        movieList.innerHTML += `
-        <div class="empty-movie">
-            <p>관련 영화가 존재하지 않습니다.</p>
-            <p>다시 검색해 주세요.</p> 
-        </div>
-        `;
+            `;
+        }
     }
 } 
 
@@ -126,8 +128,16 @@ modalClose.addEventListener("click", function() {
     document.body.classList.remove("overflow-hidden"); // 모달창 닫았을 때 뒤의 화면 스크롤바 속성 추가
 })
 
-bookmarkBtn.addEventListener("click", function() {
-
+bookmarkBtn.addEventListener("click", async function() {
+    if (bookmarkBtn.dataset.isclicked === "false") {
+        bookmarkBtn.dataset.isclicked = "true";
+        MakePosters([]);
+    }
+    else {
+        bookmarkBtn.dataset.isclicked = "false";
+        const rows = await getMovieData();
+        MakePosters(rows);
+    }
 });
 
 addBookmark.addEventListener("click", function() {

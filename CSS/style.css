@@ -108,7 +108,6 @@ body.overflow-hidden {
 .popup {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
 
     position: absolute;
     top: 50%;

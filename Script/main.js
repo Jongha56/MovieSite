@@ -22,28 +22,53 @@ const options = {
     }
 };
 
-fetch(url, options)
-    .then(response => response.json())
-    .then(response => {
-        const rows = response['results'];
-        
-        rows.forEach(e => {
-            const title = e['title'];
-            const posterPath = e['poster_path'];
-            const voteAverage = e['vote_average'];
-            const id = e['id'];
+async function getMovieData() {
+    try {
+        const movieData = await fetch(url, options);
+        const jsonData = await movieData.json();
+        const results = Object.keys(jsonData).includes('results') ? jsonData.results : jsonData;
 
-            const tempHtml = `
-                <div class="movie-card" id="${id}" data-ismarked="No">
-                    <img src="https://image.tmdb.org/t/p/w500${posterPath}">
-                    <h3>${title}</h3>
-                    <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
-                </div>
-            `
-            movieList.innerHTML += tempHtml;
-        });
-    })
-    .catch(err => console.error(err));
+        return results;
+    } catch(err) {
+        throw(err);
+    }
+}
+
+function MakePosters(rows) {
+    movieList.innerHTML = "";
+    movieList.style.color = 'black';
+
+    rows.forEach(e => {
+        const title = e['title'];
+        const posterPath = e['poster_path'];
+        const voteAverage = e['vote_average'];
+        const id = e['id'];
+
+        const tempHtml = `
+            <div class="movie-card" id="${id}">
+                <img src="https://image.tmdb.org/t/p/w500${posterPath}">
+                <h3>${title}</h3>
+                <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
+            </div>
+        `
+        movieList.innerHTML += tempHtml;
+    });
+
+    if (rows.length < 1) {
+        movieList.style.color = 'white';
+        movieList.innerHTML += `
+        <div class="empty-movie">
+            <p>관련 영화가 존재하지 않습니다.</p>
+            <p>다시 검색해 주세요.</p> 
+        </div>
+        `;
+    }
+} 
+
+async function ShowPoster() {
+    const rows = await getMovieData();
+    MakePosters(rows);
+} ShowPoster();
 
 searchInput.addEventListener("input", function () {
     const inputValue = searchInput.value.toLowerCase();
@@ -51,46 +76,13 @@ searchInput.addEventListener("input", function () {
 
     url = searchStr === "" ? `https://api.themoviedb.org/3/movie/popular?language=ko&page=1` : `https://api.themoviedb.org/3/search/movie?query=${searchStr}&language=ko`;
 
-    fetch(url, options)
-    .then(response => response.json())
-    .then(response => {
-        const rows = response['results'];
-        
-        movieList.innerHTML = "";
-        movieList.style.color = 'black';
-
-        rows.forEach(e => {
-            const title = e['title'];
-            const posterPath = e['poster_path'];
-            const voteAverage = e['vote_average'];
-            const id = e['id'];
-
-            const tempHtml = `
-                <div class="movie-card" id="${id}" data-ismarked="No">
-                    <img src="https://image.tmdb.org/t/p/w500${posterPath}">
-                    <h3>${title}</h3>
-                    <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
-                </div>
-            `
-            movieList.innerHTML += tempHtml;
-        });
-
-        if (rows.length < 1) {
-            movieList.style.color = 'white';
-            movieList.innerHTML += `
-            <div class="empty-movie">
-                <p>관련 영화가 존재하지 않습니다.</p>
-                <p>다시 검색해 주세요.</p> 
-            </div>
-            `;
-        }
-    })
-    .catch(err => console.error(err));
+    ShowPoster();
 });
 
 movieList.addEventListener("click", function(e) {
     const movieCard = document.querySelectorAll('.movie-card');
-    movieCard.forEach(card => {
+    movieCard.forEach(async function (card) {
+        // console.log(e);
         if (e.target.parentNode.id === card.id) {
             document.querySelector(".background").className = "background show";
             document.body.style.setProperty('--scrollbar-width', `${window.innerWidth - document.documentElement.offsetWidth}px`); // 스크롤바 너비 만큼 화면 고정
@@ -108,34 +100,23 @@ movieList.addEventListener("click", function(e) {
             
             url = `https://api.themoviedb.org/3/movie/${card.id}?language=ko`;
 
-            fetch(url, options)
-                .then(response => response.json())
-                .then(response => {
-                    const movieinfo = response;
+            const movieinfo = await getMovieData();
+            const title = movieinfo['title'];
+            const overview = movieinfo['overview'];
+            const voteAverage = `⭐ ${movieinfo['vote_average'].toFixed(1)} / 10`;
 
-                    const title = movieinfo['title'];
-                    const overview = movieinfo['overview'];
-                    const voteAverage = `⭐ ${movieinfo['vote_average'].toFixed(1)} / 10`;
+            tempMovieData = {
+                'id': card.id,
+                'title': title,
+                'overview': overview,
+                'poster_path': `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`,
+                'vote_average': voteAverage
+            }
 
-                    if (e.target.parentNode.dataset.ismarked === "No") {
-                        tempMovieData = {
-                            'id': card.id,
-                            'title': title,
-                            'overview': overview,
-                            'poster_path': `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`,
-                            'vote_average': voteAverage
-                        }
-                    }
-                    else {
-                        tempMovieData = {};
-                    }
-
-                    modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
-                    modalTitle.innerHTML = title;
-                    modalContents.innerHTML = overview;
-                    modalVoteAverage.innerHTML = voteAverage;
-                })
-                .catch(err => console.error(err));
+            modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
+            modalTitle.innerHTML = title;
+            modalContents.innerHTML = overview;
+            modalVoteAverage.innerHTML = voteAverage;
         }
     })
 });

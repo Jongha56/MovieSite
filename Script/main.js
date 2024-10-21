@@ -100,6 +100,16 @@ movieList.addEventListener("click", function(e) {
             document.body.style.setProperty('--scrollbar-width', `${window.innerWidth - document.documentElement.offsetWidth}px`); // 스크롤바 너비 만큼 화면 고정
             document.body.classList.add("overflow-hidden"); // 모달창 띄웠을 때 뒤의 화면 스크롤 방지
 
+            let savedMovieDatas = new Map();
+            let JsonData = JSON.parse(localStorage.getItem('bookmarks'));
+            
+            if (JsonData) {
+                for (let i = 0; i < JsonData.length; ++i) {
+                    savedMovieDatas.set(JsonData[i][0], JsonData[i][1]);
+                }
+            }
+            addBookmark.innerHTML = savedMovieDatas.has(card.id) ? "북마크 해제" : "북마크 추가";
+            
             url = `https://api.themoviedb.org/3/movie/${card.id}?language=ko`;
 
             fetch(url, options)
@@ -152,34 +162,23 @@ addBookmark.addEventListener("click", function() {
     let JsonData = JSON.parse(localStorage.getItem('bookmarks'));
     
     if (JsonData) {
-        let keyName = "";
-        JsonData.forEach((data, index) => {
-            if (index % 2 === 0) {
-                keyName = data;
-            }
-            else {
-                savedMovieDatas.set(keyName, data);
-            }
-        })
+        for (let i = 0; i < JsonData.length; ++i) {
+            savedMovieDatas.set(JsonData[i][0], JsonData[i][1]);
+        }
     }
 
-    // TODO: ismarked 를 사용하는 방법보다
-    //       savedMovieDatas 에 id 가 있는지 확인 후 분기를 나누어야 할 것 같다.
-    const tmpCard = document.getElementById(`${tempMovieData["id"]}`);
-    if (tmpCard.dataset.ismarked === "No") {
-        tmpCard.dataset.ismarked = "Yes";
-        savedMovieDatas.set(id, rest);
-        addBookmark.innerHTML = "북마크 해제";
-        alert("북마크가 추가되었습니다.");
-    }
-    else {
-        tmpCard.dataset.ismarked = "No";
+    if (savedMovieDatas.has(id)) {
         savedMovieDatas.delete(id);
         addBookmark.innerHTML = "북마크 추가";
         alert("북마크가 해제되었습니다.")
     }
-    
-    let bookmarkString = JSON.stringify(...savedMovieDatas);
+    else {
+        savedMovieDatas.set(id, rest);
+        addBookmark.innerHTML = "북마크 해제";
+        alert("북마크가 추가되었습니다.");
+    }
+
+    let bookmarkString = JSON.stringify([...savedMovieDatas]);
     localStorage.setItem("bookmarks", bookmarkString);
 })
 

@@ -26,18 +26,16 @@ fetch(url, options)
     .then(response => response.json())
     .then(response => {
         const rows = response['results'];
-        const [width, height] = [320, 450];
         
         rows.forEach(e => {
             const title = e['title'];
-            const overview = e['overview'];
             const posterPath = e['poster_path'];
             const voteAverage = e['vote_average'];
             const id = e['id'];
 
             const tempHtml = `
                 <div class="movie-card" id="${id}" data-ismarked="No">
-                    <img src="https://image.tmdb.org/t/p/w500${posterPath}" width="${width}" height="${height}">
+                    <img src="https://image.tmdb.org/t/p/w500${posterPath}">
                     <h3>${title}</h3>
                     <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
                 </div>
@@ -57,21 +55,19 @@ searchInput.addEventListener("input", function () {
     .then(response => response.json())
     .then(response => {
         const rows = response['results'];
-        const [width, height] = [320, 450];
         
         movieList.innerHTML = "";
         movieList.style.color = 'black';
 
         rows.forEach(e => {
             const title = e['title'];
-            const overview = e['overview'];
             const posterPath = e['poster_path'];
             const voteAverage = e['vote_average'];
             const id = e['id'];
 
             const tempHtml = `
                 <div class="movie-card" id="${id}" data-ismarked="No">
-                    <img src="https://image.tmdb.org/t/p/w500${posterPath}" width="${width}" height="${height}">
+                    <img src="https://image.tmdb.org/t/p/w500${posterPath}">
                     <h3>${title}</h3>
                     <p>⭐ ${voteAverage.toFixed(1)} / 10</p>
                 </div>
@@ -116,7 +112,6 @@ movieList.addEventListener("click", function(e) {
                 .then(response => response.json())
                 .then(response => {
                     const movieinfo = response;
-                    const [width, height] = [320, 450];
 
                     const title = movieinfo['title'];
                     const overview = movieinfo['overview'];
@@ -136,8 +131,6 @@ movieList.addEventListener("click", function(e) {
                     }
 
                     modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
-                    // modalImg.width = width;
-                    // modalImg.height = height;
                     modalTitle.innerHTML = title;
                     modalContents.innerHTML = overview;
                     modalVoteAverage.innerHTML = voteAverage;

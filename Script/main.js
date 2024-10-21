@@ -29,22 +29,21 @@ async function getMovieData() {
         const results = Object.keys(jsonData).includes('results') ? jsonData.results : jsonData;
 
         return results;
-    } catch(err) {
-        throw(err);
+    } catch (err) {
+        throw (err);
     }
 }
 
 function MakePosters(rows) {
     movieList.innerHTML = "";
     movieList.style.color = 'black';
-
     if (rows) {
         rows.forEach(e => {
             const title = e['title'];
             const posterPath = e['poster_path'];
             const voteAverage = e['vote_average'];
             const id = e['id'];
-    
+
             const tempHtml = `
                 <div class="movie-card" id="${id}">
                     <img src="https://image.tmdb.org/t/p/w500${posterPath}">
@@ -65,12 +64,30 @@ function MakePosters(rows) {
             `;
         }
     }
-} 
+}
 
 async function ShowPoster() {
     const rows = await getMovieData();
     MakePosters(rows);
 } ShowPoster();
+
+function LoadSavedDatas() {
+    let savedDatas = new Map();
+    let JsonData = JSON.parse(localStorage.getItem('bookmarks'));
+
+    if (JsonData) {
+        for (let i = 0; i < JsonData.length; ++i) {
+            savedDatas.set(JsonData[i][0], JsonData[i][1]);
+        }
+    }
+
+    return savedDatas;
+}
+
+function CloseModal() {
+    document.querySelector(".background").className = "background";
+    document.body.classList.remove("overflow-hidden"); // 모달창 닫았을 때 뒤의 화면 스크롤바 속성 추가
+}
 
 searchInput.addEventListener("input", function () {
     const inputValue = searchInput.value.toLowerCase();
@@ -81,25 +98,17 @@ searchInput.addEventListener("input", function () {
     ShowPoster();
 });
 
-movieList.addEventListener("click", function(e) {
+movieList.addEventListener("click", function (e) {
     const movieCard = document.querySelectorAll('.movie-card');
     movieCard.forEach(async function (card) {
-        // console.log(e);
         if (e.target.parentNode.id === card.id) {
             document.querySelector(".background").className = "background show";
             document.body.style.setProperty('--scrollbar-width', `${window.innerWidth - document.documentElement.offsetWidth}px`); // 스크롤바 너비 만큼 화면 고정
             document.body.classList.add("overflow-hidden"); // 모달창 띄웠을 때 뒤의 화면 스크롤 방지
 
-            let savedMovieDatas = new Map();
-            let JsonData = JSON.parse(localStorage.getItem('bookmarks'));
-            
-            if (JsonData) {
-                for (let i = 0; i < JsonData.length; ++i) {
-                    savedMovieDatas.set(JsonData[i][0], JsonData[i][1]);
-                }
-            }
+            let savedMovieDatas = LoadSavedDatas();
             addBookmark.innerHTML = savedMovieDatas.has(card.id) ? "북마크 해제" : "북마크 추가";
-            
+
             url = `https://api.themoviedb.org/3/movie/${card.id}?language=ko`;
 
             const movieinfo = await getMovieData();
@@ -112,7 +121,7 @@ movieList.addEventListener("click", function(e) {
                 'title': title,
                 'overview': overview,
                 'poster_path': `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`,
-                'vote_average': voteAverage
+                'vote_average': movieinfo['vote_average']
             }
 
             modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
@@ -123,36 +132,47 @@ movieList.addEventListener("click", function(e) {
     })
 });
 
-modalClose.addEventListener("click", function() {
-    document.querySelector(".background").className = "background";
-    document.body.classList.remove("overflow-hidden"); // 모달창 닫았을 때 뒤의 화면 스크롤바 속성 추가
-})
+modalClose.addEventListener("click", CloseModal);
 
-bookmarkBtn.addEventListener("click", async function() {
+bookmarkBtn.addEventListener("click", async function () {
     if (bookmarkBtn.dataset.isclicked === "false") {
         bookmarkBtn.dataset.isclicked = "true";
-        MakePosters([]);
+        let rows = [];
+        let JsonData = JSON.parse(localStorage.getItem('bookmarks'));
+        if (JsonData) {
+            for (let i = 0; i < JsonData.length; ++i) {
+                let col = { 'id': JsonData[i][0], ...JsonData[i][1] };
+                rows.push(col)
+            }
+        }
+        MakePosters(rows);
     }
     else {
         bookmarkBtn.dataset.isclicked = "false";
+        url = `https://api.themoviedb.org/3/movie/popular?language=ko&page=1`
         const rows = await getMovieData();
         MakePosters(rows);
     }
 });
 
-addBookmark.addEventListener("click", function() {
-    let savedMovieDatas = new Map();
-    const {id, ...rest} = tempMovieData;
-    let JsonData = JSON.parse(localStorage.getItem('bookmarks'));
-    
-    if (JsonData) {
-        for (let i = 0; i < JsonData.length; ++i) {
-            savedMovieDatas.set(JsonData[i][0], JsonData[i][1]);
-        }
-    }
+addBookmark.addEventListener("click", function () {
+    const { id, ...rest } = tempMovieData;
+    let savedMovieDatas = LoadSavedDatas();
 
     if (savedMovieDatas.has(id)) {
         savedMovieDatas.delete(id);
+
+        if (bookmarkBtn.dataset.isclicked === "true") {
+            let rows = [];
+            savedMovieDatas.forEach((value, key) => {
+                let col = { 'id': key, ...value };
+                rows.push(col);
+            })
+
+            MakePosters(rows);
+            CloseModal();
+        }
+
         addBookmark.innerHTML = "북마크 추가";
         alert("북마크가 해제되었습니다.")
     }
@@ -165,5 +185,3 @@ addBookmark.addEventListener("click", function() {
     let bookmarkString = JSON.stringify([...savedMovieDatas]);
     localStorage.setItem("bookmarks", bookmarkString);
 })
-
-

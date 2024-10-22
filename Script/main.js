@@ -34,7 +34,7 @@ async function getMovieData() {
     }
 }
 
-function MakePosters(rows) {
+async function MakePosters(rows) {
     movieList.innerHTML = "";
     movieList.style.color = 'black';
     if (rows) {
@@ -68,7 +68,7 @@ function MakePosters(rows) {
 
 async function ShowPoster() {
     const rows = await getMovieData();
-    MakePosters(rows);
+    await MakePosters(rows);
 } ShowPoster();
 
 function LoadSavedDatas() {
@@ -102,32 +102,36 @@ movieList.addEventListener("click", function (e) {
     const movieCard = document.querySelectorAll('.movie-card');
     movieCard.forEach(async function (card) {
         if (e.target.parentNode.id === card.id) {
-            document.querySelector(".background").className = "background show";
-            document.body.style.setProperty('--scrollbar-width', `${window.innerWidth - document.documentElement.offsetWidth}px`); // 스크롤바 너비 만큼 화면 고정
-            document.body.classList.add("overflow-hidden"); // 모달창 띄웠을 때 뒤의 화면 스크롤 방지
-
-            let savedMovieDatas = LoadSavedDatas();
-            addBookmark.innerHTML = savedMovieDatas.has(card.id) ? "북마크 해제" : "북마크 추가";
-
             url = `https://api.themoviedb.org/3/movie/${card.id}?language=ko`;
-
             const movieinfo = await getMovieData();
-            const title = movieinfo['title'];
-            const overview = movieinfo['overview'];
-            const voteAverage = `⭐ ${movieinfo['vote_average'].toFixed(1)} / 10`;
 
-            tempMovieData = {
-                'id': card.id,
-                'title': title,
-                'overview': overview,
-                'poster_path': `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`,
-                'vote_average': movieinfo['vote_average']
-            }
-
-            modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
-            modalTitle.innerHTML = title;
-            modalContents.innerHTML = overview;
-            modalVoteAverage.innerHTML = voteAverage;
+            setTimeout(() => {
+                const title = movieinfo['title'];
+                const overview = movieinfo['overview'];
+                const voteAverage = `⭐ ${movieinfo['vote_average'].toFixed(1)} / 10`;
+    
+                tempMovieData = {
+                    'id': card.id,
+                    'title': title,
+                    'overview': overview,
+                    'poster_path': `https://image.tmdb.org/t/p/w500${movieinfo['poster_path']}`,
+                    'vote_average': movieinfo['vote_average']
+                }
+    
+                modalImg.src = `https://image.tmdb.org/t/p/w500${movieinfo['backdrop_path']}`;
+                modalTitle.innerHTML = title;
+                modalContents.innerHTML = overview;
+                modalVoteAverage.innerHTML = voteAverage;
+            }, 0);
+            
+            setTimeout(() => {
+                document.querySelector(".background").className = "background show";
+                document.body.style.setProperty('--scrollbar-width', `${window.innerWidth - document.documentElement.offsetWidth}px`); // 스크롤바 너비 만큼 화면 고정
+                document.body.classList.add("overflow-hidden"); // 모달창 띄웠을 때 뒤의 화면 스크롤 방지
+    
+                let savedMovieDatas = LoadSavedDatas();
+                addBookmark.innerHTML = savedMovieDatas.has(card.id) ? "북마크 해제" : "북마크 추가";
+            }, 0);
         }
     })
 });

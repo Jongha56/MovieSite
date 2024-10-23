@@ -1,7 +1,8 @@
+import { getMovieData } from "./GetTmbData.js";
+
 const searchInput = document.querySelector('#search-input');
 const bookmarkBtn = document.querySelector('#bookmark-btn');
 const movieList = document.querySelector('#movie-list');
-const movieDetail = document.querySelector('#movie-detail');
 
 const modalClose = document.querySelector('#modal-close');
 const modalImg = document.querySelector('#modal-img');
@@ -13,26 +14,6 @@ const addBookmark = document.querySelector('#add-bookmark');
 let tempMovieData = {}; // 모달창을 띄운 영화에 대한 데이터를 임시로 넣을 변수
 
 let url = `https://api.themoviedb.org/3/movie/popular?language=ko&page=1`;
-
-const options = {
-    method: 'GET',
-    headers: {
-        accept: 'application/json',
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmYjI3NDM3OTJmYTExMDlmZjliYzk3OTU0MmNhYmE0YiIsIm5iZiI6MTcyODk1NjI5MS44NjY2NzgsInN1YiI6IjY3MGRjM2M2MGI4MDA1MzdkNzVjYjRjMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SujuOl1F-E-gei0PFevO6xn-fnLzj3ZISTWYeISBvkQ'
-    }
-};
-
-async function getMovieData() {
-    try {
-        const movieData = await fetch(url, options);
-        const jsonData = await movieData.json();
-        const results = Object.keys(jsonData).includes('results') ? jsonData.results : jsonData;
-
-        return results;
-    } catch (err) {
-        throw (err);
-    }
-}
 
 async function MakePosters(rows) {
     movieList.innerHTML = "";
@@ -67,7 +48,7 @@ async function MakePosters(rows) {
 }
 
 async function ShowPoster() {
-    const rows = await getMovieData();
+    const rows = await getMovieData(url);
     await MakePosters(rows);
 } ShowPoster();
 
@@ -103,7 +84,7 @@ movieList.addEventListener("click", function (e) {
     movieCard.forEach(async function (card) {
         if (e.target.parentNode.id === card.id) {
             url = `https://api.themoviedb.org/3/movie/${card.id}?language=ko`;
-            const movieinfo = await getMovieData();
+            const movieinfo = await getMovieData(url);
 
             setTimeout(() => {
                 const title = movieinfo['title'];
@@ -154,7 +135,7 @@ bookmarkBtn.addEventListener("click", async function () {
     else {
         bookmarkBtn.dataset.isclicked = "false";
         url = `https://api.themoviedb.org/3/movie/popular?language=ko&page=1`
-        const rows = await getMovieData();
+        const rows = await getMovieData(url);
         MakePosters(rows);
     }
 });
